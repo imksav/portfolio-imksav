@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Mail } from "lucide-react";
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -112,6 +113,26 @@ export default function AdminDashboard() {
               className="block w-full py-2 bg-blue-50 text-blue-600 font-semibold rounded-lg hover:bg-blue-100 transition text-center"
             >
               Update Resume
+            </Link>
+          </div>
+          {/* Card 5: Messages */}
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition">
+            <div className="flex justify-between items-start">
+              <div>
+                <h2 className="text-xl font-bold text-slate-800 mb-2">Inbox</h2>
+                <p className="text-slate-500 mb-4">
+                  Read inquiries from the contact form.
+                </p>
+              </div>
+              <div className="bg-blue-100 text-blue-700 p-2 rounded-full">
+                <Mail size={24} />
+              </div>
+            </div>
+            <Link
+              href="/admin/messages"
+              className="block w-full py-2 bg-blue-50 text-blue-600 font-semibold rounded-lg hover:bg-blue-100 transition text-center"
+            >
+              View Messages
             </Link>
           </div>
         </div>
