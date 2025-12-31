@@ -1,12 +1,15 @@
 "use client";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
 import { Trash2, Plus, Eye, Edit } from "lucide-react";
 
 export default function BlogManager() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // FIX: Initialize client inside the component
+  const supabase = createClient();
 
   // 1. Fetch Posts on Load
   useEffect(() => {
