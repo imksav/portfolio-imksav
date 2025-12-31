@@ -1,27 +1,27 @@
 "use client";
 import { useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
+// FIX: New Client
+import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 
 export default function CreatePost() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  // FIX: Initialize client
+  const supabase = createClient();
 
-  // Form State
+  const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [content, setContent] = useState("");
   const [excerpt, setExcerpt] = useState("");
   const [imageUrl, setImageUrl] = useState("");
-  const [tags, setTags] = useState(""); // Comma separated string
+  const [tags, setTags] = useState("");
 
-  // Auto-generate slug from title
   const handleTitleChange = (e) => {
     const val = e.target.value;
     setTitle(val);
-    // Convert "Hello World" -> "hello-world"
     setSlug(
       val
         .toLowerCase()
@@ -34,12 +34,12 @@ export default function CreatePost() {
     e.preventDefault();
     setLoading(true);
 
-    // Convert tags string "React, Nextjs" -> Array ["React", "Nextjs"]
     const tagsArray = tags
       .split(",")
       .map((tag) => tag.trim())
       .filter((tag) => tag.length > 0);
 
+    // Using the 'supabase' variable initialized above
     const { error } = await supabase.from("posts").insert([
       {
         title,
@@ -56,7 +56,7 @@ export default function CreatePost() {
       alert("Error creating post: " + error.message);
       setLoading(false);
     } else {
-      router.push("/admin/blog"); // Go back to list
+      router.push("/admin/blog");
     }
   };
 
