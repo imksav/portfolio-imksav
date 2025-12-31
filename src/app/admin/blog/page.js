@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/utils/supabase/client"; // NEW CLIENT
 import Link from "next/link";
 import { Trash2, Plus, Eye, Edit } from "lucide-react";
 
@@ -8,10 +8,9 @@ export default function BlogManager() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // FIX: Initialize client inside the component
+  // Initialize secure client
   const supabase = createClient();
 
-  // 1. Fetch Posts on Load
   useEffect(() => {
     fetchPosts();
   }, []);
@@ -26,16 +25,14 @@ export default function BlogManager() {
     setLoading(false);
   }
 
-  // 2. Delete Logic
   async function handleDelete(id) {
     if (!confirm("Are you sure you want to delete this post?")) return;
 
     const { error } = await supabase.from("posts").delete().eq("id", id);
 
     if (error) {
-      alert("Error deleting post");
+      alert("Error deleting post: " + error.message);
     } else {
-      // Remove from UI immediately without refreshing
       setPosts(posts.filter((post) => post.id !== id));
     }
   }
@@ -94,7 +91,7 @@ export default function BlogManager() {
                       {new Date(post.created_at).toLocaleDateString()}
                     </td>
                     <td className="p-4 text-right flex justify-end gap-3">
-                      {/* View */}
+                      {/* View Button */}
                       <a
                         href={`/blog/${post.slug}`}
                         target="_blank"
@@ -103,7 +100,7 @@ export default function BlogManager() {
                         <Eye size={20} />
                       </a>
 
-                      {/* NEW: Edit Button */}
+                      {/* Edit Button */}
                       <Link
                         href={`/admin/blog/edit/${post.id}`}
                         className="text-slate-400 hover:text-green-600 transition"
@@ -111,7 +108,7 @@ export default function BlogManager() {
                         <Edit size={20} />
                       </Link>
 
-                      {/* Delete */}
+                      {/* Delete Button */}
                       <button
                         onClick={() => handleDelete(post.id)}
                         className="text-slate-400 hover:text-red-600 transition"

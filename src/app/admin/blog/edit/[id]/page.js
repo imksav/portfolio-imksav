@@ -1,15 +1,17 @@
 "use client";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
-import { useRouter } from "next/navigation"; // Note: Next.js 13+ router
+import { createClient } from "@/utils/supabase/client"; // NEW CLIENT
+import { useRouter } from "next/navigation";
 import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 
 export default function EditPost({ params }) {
   const router = useRouter();
+  const supabase = createClient(); // Initialize
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [id, setId] = useState(null); // Store ID for update
+  const [id, setId] = useState(null);
 
   // Form State
   const [title, setTitle] = useState("");
@@ -19,7 +21,7 @@ export default function EditPost({ params }) {
   const [imageUrl, setImageUrl] = useState("");
   const [tags, setTags] = useState("");
 
-  // 1. Fetch Data on Load
+  // 1. Fetch Data
   useEffect(() => {
     async function loadPost() {
       // Unwrap params for Next.js 15 compatibility
@@ -37,7 +39,6 @@ export default function EditPost({ params }) {
         alert("Error fetching post");
         router.push("/admin/blog");
       } else {
-        // Populate Form
         setTitle(data.title);
         setSlug(data.slug);
         setContent(data.content);
@@ -48,7 +49,7 @@ export default function EditPost({ params }) {
       }
     }
     loadPost();
-  }, [params, router]);
+  }, [params, router]); // Added dependencies
 
   // 2. Handle Update
   const handleUpdate = async (e) => {
@@ -63,7 +64,6 @@ export default function EditPost({ params }) {
     const { error } = await supabase
       .from("posts")
       .update({
-        // .update() instead of .insert()
         title,
         slug,
         content,
@@ -71,7 +71,7 @@ export default function EditPost({ params }) {
         image_url: imageUrl,
         tags: tagsArray,
       })
-      .eq("id", id); // Crucial: Only update THIS post
+      .eq("id", id);
 
     if (error) {
       alert("Error updating post: " + error.message);

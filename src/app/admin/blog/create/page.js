@@ -1,17 +1,17 @@
 "use client";
 import { useState } from "react";
-// FIX: New Client
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/utils/supabase/client"; // NEW CLIENT
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 
 export default function CreatePost() {
   const router = useRouter();
-  // FIX: Initialize client
-  const supabase = createClient();
+  const supabase = createClient(); // Initialize
 
   const [loading, setLoading] = useState(false);
+
+  // Form State
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [content, setContent] = useState("");
@@ -19,6 +19,7 @@ export default function CreatePost() {
   const [imageUrl, setImageUrl] = useState("");
   const [tags, setTags] = useState("");
 
+  // Auto-generate slug
   const handleTitleChange = (e) => {
     const val = e.target.value;
     setTitle(val);
@@ -39,7 +40,6 @@ export default function CreatePost() {
       .map((tag) => tag.trim())
       .filter((tag) => tag.length > 0);
 
-    // Using the 'supabase' variable initialized above
     const { error } = await supabase.from("posts").insert([
       {
         title,
@@ -76,7 +76,6 @@ export default function CreatePost() {
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Title & Slug */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-bold text-slate-700 mb-2">
@@ -87,13 +86,12 @@ export default function CreatePost() {
                 value={title}
                 onChange={handleTitleChange}
                 className="w-full p-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none"
-                placeholder="e.g. My New Tutorial"
                 required
               />
             </div>
             <div>
               <label className="block text-sm font-bold text-slate-700 mb-2">
-                Slug (URL)
+                Slug
               </label>
               <input
                 type="text"
@@ -105,7 +103,6 @@ export default function CreatePost() {
             </div>
           </div>
 
-          {/* Image URL */}
           <div>
             <label className="block text-sm font-bold text-slate-700 mb-2">
               Cover Image URL
@@ -115,40 +112,34 @@ export default function CreatePost() {
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
               className="w-full p-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none"
-              placeholder="https://..."
             />
           </div>
 
-          {/* Excerpt */}
           <div>
             <label className="block text-sm font-bold text-slate-700 mb-2">
-              Excerpt (Short Summary)
+              Excerpt
             </label>
             <textarea
               value={excerpt}
               onChange={(e) => setExcerpt(e.target.value)}
               rows="2"
               className="w-full p-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none"
-              placeholder="A brief preview shown on the card..."
             />
           </div>
 
-          {/* Content */}
           <div>
             <label className="block text-sm font-bold text-slate-700 mb-2">
-              Main Content (Markdown supported)
+              Content
             </label>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               rows="12"
               className="w-full p-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none font-mono text-sm"
-              placeholder="Write your article here..."
               required
             />
           </div>
 
-          {/* Tags */}
           <div>
             <label className="block text-sm font-bold text-slate-700 mb-2">
               Tags (comma separated)
@@ -158,11 +149,9 @@ export default function CreatePost() {
               value={tags}
               onChange={(e) => setTags(e.target.value)}
               className="w-full p-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none"
-              placeholder="React, Database, Tutorial"
             />
           </div>
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
