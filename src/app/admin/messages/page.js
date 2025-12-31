@@ -1,12 +1,15 @@
 "use client";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
+// FIX 1: Import the correct client creator
+import { createClient } from "@/utils/supabase/client";
 import { Trash2, Mail, Phone, Calendar } from "lucide-react";
-import Link from "next/link";
 
 export default function MessageInbox() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // FIX 2: Initialize the client
+  const supabase = createClient();
 
   useEffect(() => {
     fetchMessages();
@@ -14,19 +17,31 @@ export default function MessageInbox() {
 
   async function fetchMessages() {
     setLoading(true);
-    const { data } = await supabase
+
+    // FIX 3: Use the new supabase instance
+    const { data, error } = await supabase
       .from("messages")
       .select("*")
       .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching messages:", error.message);
+    }
+
     setMessages(data || []);
     setLoading(false);
   }
 
   async function handleDelete(id) {
     if (!confirm("Delete this message?")) return;
+
+    // FIX 4: Use the new supabase instance for delete too
     const { error } = await supabase.from("messages").delete().eq("id", id);
+
     if (!error) {
       setMessages(messages.filter((m) => m.id !== id));
+    } else {
+      alert("Failed to delete: " + error.message);
     }
   }
 
@@ -104,7 +119,9 @@ export default function MessageInbox() {
 
             {messages.length === 0 && (
               <div className="text-center py-20 bg-white rounded-xl border border-dashed border-slate-300">
-                <p className="text-slate-400">No messages yet.</p>
+                <p className="text-slate-400">
+                  No messages found (or you need to log in again).
+                </p>
               </div>
             )}
           </div>
