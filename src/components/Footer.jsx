@@ -6,7 +6,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Brand Section */}
         <div>
-          <h3 className="text-xl font-bold text-white mb-4">Keshav.dev</h3>
+          <h3 className="text-xl font-bold text-white mb-4">imksav.py</h3>
           <p className="text-sm text-slate-400 leading-relaxed">
             Building scalable systems and solving complex problems with code.
             Let's build something amazing together.
@@ -76,7 +76,8 @@ export default function Footer() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 mt-12 pt-8 border-t border-slate-800 text-center text-sm text-slate-500">
-        © {new Date().getFullYear()} Keshav Bhandari. All rights reserved.
+        © {new Date().getFullYear()} Keshav Bhandari | imksav. All rights
+        reserved.
       </div>
     </footer>
   );

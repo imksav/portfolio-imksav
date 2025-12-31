@@ -1,5 +1,7 @@
 "use client";
 import { useState } from "react";
+// IMPORT THE NEW CLIENT HERE:
+import { createClient } from '@/utils/supabase/client';
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 
@@ -9,6 +11,9 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // Initialize the new client
+  const supabase = createClient();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -25,7 +30,8 @@ export default function LoginPage() {
       setError(error.message);
       setLoading(false);
     } else {
-      // 2. If successful, redirect to the dashboard
+      // Refresh router so Middleware detects the new cookie
+      router.refresh();
       router.push("/admin");
     }
   };

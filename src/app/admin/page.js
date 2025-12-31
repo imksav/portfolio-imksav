@@ -1,138 +1,170 @@
-"use client";
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
-import { useRouter } from "next/navigation";
+import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Mail } from "lucide-react";
+import {
+  FileText,
+  Briefcase,
+  Award,
+  Upload,
+  Mail,
+  ArrowRight,
+} from "lucide-react";
+import LogoutButton from "@/components/LogoutButton";
 
-export default function AdminDashboard() {
-  const router = useRouter();
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+export default async function AdminDashboard() {
+  // 1. Verify Session on Server (Double Security)
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
 
-  // 1. Check if user is logged in
-  useEffect(() => {
-    async function checkUser() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        // If no user, kick them back to login
-        router.push("/admin/login");
-      } else {
-        setUser(user);
-        setLoading(false);
-      }
-    }
-    checkUser();
-  }, [router]);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/admin/login");
-  };
-
-  if (loading)
-    return <div className="text-center py-20">Loading Admin Panel...</div>;
+  if (error || !user) {
+    redirect("/admin/login");
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 p-8 pt-24">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8 bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+      <div className="max-w-6xl mx-auto">
+        {/* --- HEADER SECTION --- */}
+        <div className="flex flex-col md:flex-row justify-between items-center mb-10 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
-            <p className="text-slate-500 text-sm">
-              Welcome back, {user?.email}
+            <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
+            <p className="text-slate-500 mt-1">
+              Logged in as{" "}
+              <span className="font-mono text-blue-600 bg-blue-50 px-2 py-1 rounded text-sm">
+                {user.email}
+              </span>
             </p>
           </div>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg font-medium transition"
-          >
-            Logout
-          </button>
+          <div className="mt-4 md:mt-0">
+            <LogoutButton />
+          </div>
         </div>
 
-        {/* Action Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Card 1: Blog Posts */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition">
+        {/* --- DASHBOARD GRID --- */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Card 1: Blog Manager */}
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition flex flex-col">
+            <div className="flex justify-between items-start mb-4">
+              <div className="p-3 bg-blue-100 text-blue-600 rounded-xl">
+                <FileText size={24} />
+              </div>
+            </div>
             <h2 className="text-xl font-bold text-slate-800 mb-2">
-              Manage Blog
+              Blog Posts
             </h2>
-            <p className="text-slate-500 mb-4">
-              Create, edit, or delete your articles.
+            <p className="text-slate-500 text-sm mb-6 flex-grow">
+              Write, edit, and publish articles for your blog.
             </p>
             <Link
               href="/admin/blog"
-              className="block w-full py-2 bg-blue-50 text-blue-600 font-semibold rounded-lg hover:bg-blue-100 transition text-center"
+              className="flex items-center justify-center gap-2 w-full py-3 bg-slate-50 text-slate-700 font-semibold rounded-xl hover:bg-blue-600 hover:text-white transition group"
             >
-              Go to Blog Manager
+              Manage Blog{" "}
+              <ArrowRight
+                size={16}
+                className="group-hover:translate-x-1 transition-transform"
+              />
             </Link>
           </div>
 
-          {/* Card 2: Projects */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition">
-            <h2 className="text-xl font-bold text-slate-800 mb-2">
-              Manage Projects
-            </h2>
-            <p className="text-slate-500 mb-4">
-              Update your portfolio projects.
+          {/* Card 2: Project Manager */}
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition flex flex-col">
+            <div className="flex justify-between items-start mb-4">
+              <div className="p-3 bg-purple-100 text-purple-600 rounded-xl">
+                <Briefcase size={24} />
+              </div>
+            </div>
+            <h2 className="text-xl font-bold text-slate-800 mb-2">Projects</h2>
+            <p className="text-slate-500 text-sm mb-6 flex-grow">
+              Showcase your latest work and case studies.
             </p>
             <Link
               href="/admin/projects"
-              className="block w-full py-2 bg-blue-50 text-blue-600 font-semibold rounded-lg hover:bg-blue-100 transition text-center"
+              className="flex items-center justify-center gap-2 w-full py-3 bg-slate-50 text-slate-700 font-semibold rounded-xl hover:bg-purple-600 hover:text-white transition group"
             >
-              Go to Project Manager
+              Manage Projects{" "}
+              <ArrowRight
+                size={16}
+                className="group-hover:translate-x-1 transition-transform"
+              />
             </Link>
           </div>
+
           {/* Card 3: Certificates */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition">
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition flex flex-col">
+            <div className="flex justify-between items-start mb-4">
+              <div className="p-3 bg-green-100 text-green-600 rounded-xl">
+                <Award size={24} />
+              </div>
+            </div>
             <h2 className="text-xl font-bold text-slate-800 mb-2">
-              Manage Certificates
+              Certificates
             </h2>
-            <p className="text-slate-500 mb-4">
-              Add or update your certifications.
+            <p className="text-slate-500 text-sm mb-6 flex-grow">
+              Add new certifications and achievements.
             </p>
             <Link
               href="/admin/certificates"
-              className="block w-full py-2 bg-blue-50 text-blue-600 font-semibold rounded-lg hover:bg-blue-100 transition text-center"
+              className="flex items-center justify-center gap-2 w-full py-3 bg-slate-50 text-slate-700 font-semibold rounded-xl hover:bg-green-600 hover:text-white transition group"
             >
-              Go to Certificate Manager
+              Manage Certs{" "}
+              <ArrowRight
+                size={16}
+                className="group-hover:translate-x-1 transition-transform"
+              />
             </Link>
           </div>
+
           {/* Card 4: Resume */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition">
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition flex flex-col">
+            <div className="flex justify-between items-start mb-4">
+              <div className="p-3 bg-orange-100 text-orange-600 rounded-xl">
+                <Upload size={24} />
+              </div>
+            </div>
             <h2 className="text-xl font-bold text-slate-800 mb-2">
               Resume File
             </h2>
-            <p className="text-slate-500 mb-4">Upload your latest CV (PDF).</p>
+            <p className="text-slate-500 text-sm mb-6 flex-grow">
+              Upload your latest PDF resume for download.
+            </p>
             <Link
               href="/admin/resume"
-              className="block w-full py-2 bg-blue-50 text-blue-600 font-semibold rounded-lg hover:bg-blue-100 transition text-center"
+              className="flex items-center justify-center gap-2 w-full py-3 bg-slate-50 text-slate-700 font-semibold rounded-xl hover:bg-orange-600 hover:text-white transition group"
             >
-              Update Resume
+              Update Resume{" "}
+              <ArrowRight
+                size={16}
+                className="group-hover:translate-x-1 transition-transform"
+              />
             </Link>
           </div>
-          {/* Card 5: Messages */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition">
-            <div className="flex justify-between items-start">
-              <div>
-                <h2 className="text-xl font-bold text-slate-800 mb-2">Inbox</h2>
-                <p className="text-slate-500 mb-4">
-                  Read inquiries from the contact form.
-                </p>
-              </div>
-              <div className="bg-blue-100 text-blue-700 p-2 rounded-full">
+
+          {/* Card 5: Inbox */}
+          <div className="md:col-span-2 lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition flex flex-col">
+            <div className="flex justify-between items-start mb-4">
+              <div className="p-3 bg-indigo-100 text-indigo-600 rounded-xl">
                 <Mail size={24} />
               </div>
+              <span className="bg-red-100 text-red-600 text-xs font-bold px-2 py-1 rounded-full">
+                Private
+              </span>
             </div>
+            <h2 className="text-xl font-bold text-slate-800 mb-2">Inbox</h2>
+            <p className="text-slate-500 text-sm mb-6 flex-grow">
+              Read messages from your contact form.
+            </p>
             <Link
               href="/admin/messages"
-              className="block w-full py-2 bg-blue-50 text-blue-600 font-semibold rounded-lg hover:bg-blue-100 transition text-center"
+              className="flex items-center justify-center gap-2 w-full py-3 bg-slate-50 text-slate-700 font-semibold rounded-xl hover:bg-indigo-600 hover:text-white transition group"
             >
-              View Messages
+              View Messages{" "}
+              <ArrowRight
+                size={16}
+                className="group-hover:translate-x-1 transition-transform"
+              />
             </Link>
           </div>
         </div>
