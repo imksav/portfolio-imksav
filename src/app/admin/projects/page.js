@@ -1,12 +1,16 @@
 "use client";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
+// FIX: Import new client
+import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
-import { Trash2, Plus, Github, ExternalLink, Edit } from "lucide-react";
+import { Trash2, Plus, Edit, Github, ExternalLink } from "lucide-react";
 
 export default function ProjectManager() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // FIX: Initialize secure client
+  const supabase = createClient();
 
   useEffect(() => {
     fetchProjects();
@@ -28,7 +32,7 @@ export default function ProjectManager() {
     const { error } = await supabase.from("projects").delete().eq("id", id);
 
     if (error) {
-      alert("Error deleting project");
+      alert("Error deleting project: " + error.message);
     } else {
       setProjects(projects.filter((p) => p.id !== id));
     }
@@ -64,9 +68,8 @@ export default function ProjectManager() {
                   <h3 className="text-xl font-bold text-slate-900">
                     {project.title}
                   </h3>
-
                   <div className="flex gap-2">
-                    {/* NEW: Edit Button */}
+                    {/* Edit Button */}
                     <Link
                       href={`/admin/projects/edit/${project.id}`}
                       className="text-slate-400 hover:text-green-600 transition p-1"
@@ -97,7 +100,7 @@ export default function ProjectManager() {
                   ))}
                 </div>
 
-                <p className="text-slate-500 text-sm mb-6 flex-grow">
+                <p className="text-slate-500 text-sm mb-6 flex-grow line-clamp-3">
                   {project.description}
                 </p>
 
@@ -124,6 +127,12 @@ export default function ProjectManager() {
                 </div>
               </div>
             ))}
+
+            {projects.length === 0 && (
+              <div className="col-span-full text-center py-10 text-slate-400">
+                No projects found. Add one to get started!
+              </div>
+            )}
           </div>
         )}
       </div>

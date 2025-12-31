@@ -1,12 +1,16 @@
 "use client";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
+// FIX: Import new client
+import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 
 export default function EditProject({ params }) {
   const router = useRouter();
+  // FIX: Initialize secure client
+  const supabase = createClient();
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [id, setId] = useState(null);
@@ -22,6 +26,7 @@ export default function EditProject({ params }) {
   // 1. Fetch Data
   useEffect(() => {
     async function loadProject() {
+      // Params handling for Next.js 15 compatibility
       const resolvedParams = await params;
       const projectId = resolvedParams.id;
       setId(projectId);

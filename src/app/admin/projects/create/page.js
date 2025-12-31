@@ -1,12 +1,16 @@
 "use client";
 import { useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
+// FIX: Import new client
+import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 
 export default function CreateProject() {
   const router = useRouter();
+  // FIX: Initialize secure client
+  const supabase = createClient();
+
   const [loading, setLoading] = useState(false);
 
   // State for all fields

@@ -1,12 +1,16 @@
 "use client";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
+// FIX: Import secure client
+import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 
 export default function EditCertificate({ params }) {
   const router = useRouter();
+  // FIX: Initialize secure client
+  const supabase = createClient();
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [id, setId] = useState(null);
@@ -22,12 +26,13 @@ export default function EditCertificate({ params }) {
   useEffect(() => {
     async function load() {
       const resolvedParams = await params;
-      setId(resolvedParams.id);
+      const certId = resolvedParams.id;
+      setId(certId);
 
       const { data, error } = await supabase
         .from("certificates")
         .select("*")
-        .eq("id", resolvedParams.id)
+        .eq("id", certId)
         .single();
 
       if (error) {
@@ -60,9 +65,10 @@ export default function EditCertificate({ params }) {
       })
       .eq("id", id);
 
-    if (!error) router.push("/admin/certificates");
-    else {
-      alert(error.message);
+    if (!error) {
+      router.push("/admin/certificates");
+    } else {
+      alert("Error: " + error.message);
       setSaving(false);
     }
   };
@@ -74,7 +80,7 @@ export default function EditCertificate({ params }) {
       <div className="max-w-2xl mx-auto">
         <Link
           href="/admin/certificates"
-          className="flex items-center text-slate-500 mb-6"
+          className="flex items-center text-slate-500 mb-6 hover:text-slate-800 transition"
         >
           <ArrowLeft size={20} className="mr-2" /> Cancel
         </Link>
@@ -94,12 +100,12 @@ export default function EditCertificate({ params }) {
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full p-3 border rounded-lg"
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
               required
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-bold text-slate-700 mb-1">
                 Issuer
@@ -108,7 +114,7 @@ export default function EditCertificate({ params }) {
                 type="text"
                 value={issuer}
                 onChange={(e) => setIssuer(e.target.value)}
-                className="w-full p-3 border rounded-lg"
+                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                 required
               />
             </div>
@@ -120,7 +126,7 @@ export default function EditCertificate({ params }) {
                 type="text"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full p-3 border rounded-lg"
+                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                 required
               />
             </div>
@@ -134,7 +140,7 @@ export default function EditCertificate({ params }) {
               type="date"
               value={issueDate}
               onChange={(e) => setIssueDate(e.target.value)}
-              className="w-full p-3 border rounded-lg"
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             />
           </div>
 
@@ -146,16 +152,17 @@ export default function EditCertificate({ params }) {
               type="url"
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
-              className="w-full p-3 border rounded-lg"
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             />
           </div>
 
           <button
             type="submit"
             disabled={saving}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition flex justify-center items-center gap-2"
+            className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition flex justify-center items-center gap-2 mt-4"
           >
-            <Save size={20} /> Update Certificate
+            <Save size={20} />
+            {saving ? "Updating..." : "Update Certificate"}
           </button>
         </form>
       </div>

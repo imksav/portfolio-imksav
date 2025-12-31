@@ -1,12 +1,16 @@
 "use client";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
+// FIX: Import secure client
+import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
 import { Trash2, Plus, Edit, ExternalLink } from "lucide-react";
 
 export default function CertificateManager() {
   const [certs, setCerts] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // FIX: Initialize secure client
+  const supabase = createClient();
 
   useEffect(() => {
     fetchCerts();
@@ -24,8 +28,14 @@ export default function CertificateManager() {
 
   async function handleDelete(id) {
     if (!confirm("Delete this certificate?")) return;
+
     const { error } = await supabase.from("certificates").delete().eq("id", id);
-    if (!error) setCerts(certs.filter((c) => c.id !== id));
+
+    if (!error) {
+      setCerts(certs.filter((c) => c.id !== id));
+    } else {
+      alert("Error deleting: " + error.message);
+    }
   }
 
   return (
@@ -42,7 +52,7 @@ export default function CertificateManager() {
         </div>
 
         {loading ? (
-          <div className="text-center">Loading...</div>
+          <div className="text-center py-10">Loading...</div>
         ) : (
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <table className="w-full text-left">
@@ -56,7 +66,7 @@ export default function CertificateManager() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {certs.map((cert) => (
-                  <tr key={cert.id} className="hover:bg-slate-50">
+                  <tr key={cert.id} className="hover:bg-slate-50 transition">
                     <td className="p-4">
                       <div className="font-bold text-slate-800">
                         {cert.title}
@@ -74,24 +84,29 @@ export default function CertificateManager() {
                       {cert.issue_date}
                     </td>
                     <td className="p-4 text-right flex justify-end gap-3">
+                      {/* View Link */}
                       {cert.image_url && (
                         <a
                           href={cert.image_url}
                           target="_blank"
-                          className="text-slate-400 hover:text-blue-600"
+                          className="text-slate-400 hover:text-blue-600 transition"
                         >
                           <ExternalLink size={20} />
                         </a>
                       )}
+
+                      {/* Edit Button */}
                       <Link
                         href={`/admin/certificates/edit/${cert.id}`}
-                        className="text-slate-400 hover:text-green-600"
+                        className="text-slate-400 hover:text-green-600 transition"
                       >
                         <Edit size={20} />
                       </Link>
+
+                      {/* Delete Button */}
                       <button
                         onClick={() => handleDelete(cert.id)}
-                        className="text-slate-400 hover:text-red-600"
+                        className="text-slate-400 hover:text-red-600 transition"
                       >
                         <Trash2 size={20} />
                       </button>
@@ -100,6 +115,12 @@ export default function CertificateManager() {
                 ))}
               </tbody>
             </table>
+
+            {certs.length === 0 && (
+              <div className="p-8 text-center text-gray-400">
+                No certificates found.
+              </div>
+            )}
           </div>
         )}
       </div>
